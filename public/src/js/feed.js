@@ -1,19 +1,24 @@
 var shareImageButton = document.querySelector('#share-image-button');
 var createPostArea = document.querySelector('#create-post');
 var closeCreatePostModalButton = document.querySelector('#close-create-post-modal-btn');
+var sharedMomentsArea = document.querySelector('#shared-moments');
 
 function openCreatePostModal() {
   createPostArea.style.display = 'block';
-  if(deferredPromt){ //display the add to home screen button when you choose to do so, not when chrome wants you too. 
-      deferredPromt.promt();
-      deferredPromt.userChoice.then(function(choice){
-          if(choice.outcome === 'dismissed'){
-              console.log('user canceled');
-          } else {
-              console.lo('user added to home screen')
-          }
-      });
-      deferredPromt = null;
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+
+    deferredPrompt.userChoice.then(function(choiceResult) {
+      console.log(choiceResult.outcome);
+
+      if (choiceResult.outcome === 'dismissed') {
+        console.log('User cancelled installation');
+      } else {
+        console.log('User added to home screen');
+      }
+    });
+
+    deferredPrompt = null;
   }
 }
 
@@ -24,3 +29,50 @@ function closeCreatePostModal() {
 shareImageButton.addEventListener('click', openCreatePostModal);
 
 closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
+
+function createCard() {
+  var cardWrapper = document.createElement('div');
+  cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
+  cardWrapper.style.margin = '0 auto';
+  var cardTitle = document.createElement('div');
+  cardTitle.className = 'mdl-card__title';
+  cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
+  cardTitle.style.backgroundSize = 'cover';
+  cardTitle.style.height = '180px';
+  cardWrapper.appendChild(cardTitle);
+  var cardTitleTextElement = document.createElement('h2');
+  cardTitleTextElement.style.color = 'white';
+  cardTitleTextElement.className = 'mdl-card__title-text';
+  cardTitleTextElement.textContent = 'San Francisco Trip';
+  cardTitle.appendChild(cardTitleTextElement);
+  var cardSupportingText = document.createElement('div');
+  cardSupportingText.className = 'mdl-card__supporting-text';
+  cardSupportingText.textContent = 'In San Francisco';
+  cardSupportingText.style.textAlign = 'center';
+  // var button = document.createElement('button');
+  // button.textContent = 'Save';
+  // button.addEventListener('click', onSaveButton);
+  // cardSupportingText.appendChild(button);
+  cardWrapper.appendChild(cardSupportingText);
+  componentHandler.upgradeElement(cardWrapper);
+  sharedMomentsArea.appendChild(cardWrapper);
+}
+
+// function onSaveButton(){
+//     console.log('clicked');
+//     if('caches' in window){
+//         caches.open('user')
+//             .then(function(cache){
+//                 cache.add('https://httpbin.org/get');
+//                 cache.add('/src/images/sf-boat.jpg');
+//             });
+//     }
+// }
+
+fetch('https://httpbin.org/get')
+  .then(function(res) {
+    return res.json();
+  })
+  .then(function(data) {
+    createCard();
+  });
